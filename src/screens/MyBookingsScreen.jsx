@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
+import { getToken } from "../utils/auth";
 
 const MyBookingsScreen = () => {
   const [bookings, setBookings] = useState([]);
@@ -9,35 +10,58 @@ const MyBookingsScreen = () => {
   }, []);
 
   const fetchBookings = async () => {
-    const res = await fetch("http://localhost:5000/bookings");
-    const data = await res.json();
+    try {
+      const token = getToken();
 
-    const now = new Date();
+      const res = await fetch("http://localhost:5000/bookings", {
+        headers: {
+          authorization: token
+        }
+      });
 
-    const formatted = data.map((b) => {
-      const start = new Date(b.startTime);
-      const end = new Date(b.endTime);
+      const data = await res.json();
 
-      return {
-        id: b._id,
-        location: b.location,
-        name: b.name,
-        vehicle: b.vehicle,
-        date: start.toDateString(),
-        time: `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
-        isActive: start <= now && end >= now,
-        isFuture: start > now,
-        isPast: end < now
-      };
-    });
+      if (!Array.isArray(data)) {
+        console.log("Error:", data);
+        return;
+      }
 
-    setBookings(formatted);
+      const now = new Date();
+
+      const formatted = data.map((b) => {
+        const start = new Date(b.startTime);
+        const end = new Date(b.endTime);
+
+        return {
+          id: b._id,
+          location: b.location,
+          name: b.name,
+          vehicle: b.vehicle,
+          date: start.toDateString(),
+          time: `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
+          isActive: start <= now && end >= now,
+          isFuture: start > now,
+          isPast: end < now
+        };
+      });
+
+      setBookings(formatted);
+
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleCancel = async (id) => {
+    const token = getToken(); // 🔥 FIXED
+
     await fetch(`http://localhost:5000/cancel/${id}`, {
-      method: "DELETE"
+      method: "DELETE",
+      headers: {
+        authorization: token
+      }
     });
+
     fetchBookings();
   };
 

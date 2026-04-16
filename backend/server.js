@@ -1,18 +1,22 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+
+const authRoutes = require("./routes/authRoutes");
+const { auth } = require("./middleware/auth");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
+
 // ------------------ CONNECT DB ------------------
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log("DB connected"))
   .catch(err => console.log("DB Error:", err));
-
 
 // ------------------ SCHEMAS ------------------
 const Parking = mongoose.model("Parking", {
@@ -26,9 +30,12 @@ const Booking = mongoose.model("Booking", {
   startTime: Date,
   endTime: Date,
   name: String,
-  vehicle: String
+  vehicle: String,
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User"
+  }
 });
-
 
 // ------------------ ROUTES ------------------
 
@@ -37,6 +44,10 @@ app.get("/", (req, res) => {
   res.send("Backend running");
 });
 
+// TEST AUTH
+app.get("/test", auth, (req, res) => {
+  res.json(req.user);
+});
 
 // ADD SAMPLE PARKING
 app.get("/add-parking", async (req, res) => {
@@ -58,22 +69,17 @@ app.get("/add-parking", async (req, res) => {
   res.send("Parking data added");
 });
 
-
-// 🔥 FINAL FIXED PARKING ROUTE (TIME BASED)
+// PARKING (UNCHANGED)
 app.get("/parking", async (req, res) => {
   try {
     const { startTime, endTime } = req.query;
-
-    console.log("REQ QUERY:", req.query); // DEBUG
 
     const parkings = await Parking.find();
     const result = [];
 
     for (let p of parkings) {
-
       let overlapCount = 0;
 
-      // ✅ IF USER SELECTED TIME
       if (startTime && endTime) {
         const start = new Date(startTime);
         const end = new Date(endTime);
@@ -85,7 +91,6 @@ app.get("/parking", async (req, res) => {
         });
 
       } else {
-        // ✅ DEFAULT → CURRENT TIME
         const now = new Date();
 
         overlapCount = await Booking.countDocuments({
@@ -110,9 +115,8 @@ app.get("/parking", async (req, res) => {
   }
 });
 
-
-// 🔥 BOOK PARKING (CORRECT)
-app.post("/book", async (req, res) => {
+// 🔥 BOOK PARKING (SAFE VERSION)
+app.post("/book", auth, async (req, res) => {
   try {
     const { location, startTime, endTime, name, vehicle } = req.body;
 
@@ -132,6 +136,22 @@ app.post("/book", async (req, res) => {
       });
     }
 
+    // 🔥 PREVENT SAME USER DUPLICATE BOOKING
+    const existing = await Booking.findOne({
+      userId: req.user.id,
+      location,
+      startTime: { $lt: end },
+      endTime: { $gt: start }
+    });
+
+    if (existing) {
+      return res.json({
+        success: false,
+        message: "You already booked this slot"
+      });
+    }
+
+    // 🔥 CHECK SLOT AVAILABILITY
     const overlapCount = await Booking.countDocuments({
       location,
       startTime: { $lt: end },
@@ -150,7 +170,8 @@ app.post("/book", async (req, res) => {
       startTime: start,
       endTime: end,
       name,
-      vehicle
+      vehicle,
+      userId: req.user.id
     });
 
     await booking.save();
@@ -166,16 +187,26 @@ app.post("/book", async (req, res) => {
   }
 });
 
-
 // GET BOOKINGS
-app.get("/bookings", async (req, res) => {
-  const data = await Booking.find();
-  res.json(data);
+app.get("/bookings", auth, async (req, res) => {
+  try {
+    let data;
+
+    if (req.user.role === "admin") {
+      data = await Booking.find();
+    } else {
+      data = await Booking.find({ userId: req.user.id });
+    }
+
+    res.json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-
 // CANCEL BOOKING
-app.delete("/cancel/:id", async (req, res) => {
+app.delete("/cancel/:id", auth, async (req, res) => {
   try {
     await Booking.findByIdAndDelete(req.params.id);
 
@@ -188,7 +219,6 @@ app.delete("/cancel/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 
 // START SERVER
 app.listen(5000, () => {
