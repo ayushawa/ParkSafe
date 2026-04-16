@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import HomeScreen from './screens/HomeScreen';
 import ParkingListScreen from './screens/ParkingListScreen';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
@@ -8,12 +8,6 @@ import RideBookingScreen from './screens/RideBookingScreen';
 import BottomNav from './components/BottomNav';
 
 function App() {
-  // Use dark mode as the default for a premium feel, 
-  // setting the attribute on the root html element
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', 'dark');
-  }, []);
-
   return (
     <Router>
       <Routes>
@@ -23,6 +17,7 @@ function App() {
         <Route path="/bookings" element={<MyBookingsScreen />} />
         <Route path="/ride" element={<RideBookingScreen />} />
       </Routes>
+
       <BottomNav />
     </Router>
   );

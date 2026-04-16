@@ -8,36 +8,29 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// CONNECT DB
-async function connectDB() {
-  try {
-    console.log("Connecting to DB...");
-    await mongoose.connect(process.env.MONGO_URI)
-    console.log("DB connected");
-  } catch (err) {
-    console.log("DB ERROR:", err.message);
-  }
-}
+// ------------------ CONNECT DB ------------------
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("DB connected"))
+  .catch(err => console.log("DB Error:", err));
 
-connectDB();
 
-//  PARKING SCHEMA
-const parkingSchema = new mongoose.Schema({
+// ------------------ SCHEMAS ------------------
+const Parking = mongoose.model("Parking", {
   name: String,
   totalSlots: Number,
   price: Number
 });
 
-const Parking = mongoose.model("Parking", parkingSchema);
-
-// BOOKING SCHEMA
-const bookingSchema = new mongoose.Schema({
+const Booking = mongoose.model("Booking", {
   location: String,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
+  name: String,
+  vehicle: String
 });
 
-const Booking = mongoose.model("Booking", bookingSchema);
+
+// ------------------ ROUTES ------------------
 
 // TEST
 app.get("/", (req, res) => {
@@ -45,50 +38,50 @@ app.get("/", (req, res) => {
 });
 
 
+// ADD SAMPLE PARKING
 app.get("/add-parking", async (req, res) => {
   await Parking.deleteMany();
 
   await Parking.insertMany([
-  { name: "Metro A", totalSlots: 50, price: 20 },
-  { name: "Metro UP", totalSlots: 80, price: 25 },
-  { name: "Rajiv Chowk", totalSlots: 100, price: 40 },
-  { name: "Huda City Centre", totalSlots: 120, price: 30 },
-  { name: "Noida Sector 18", totalSlots: 90, price: 15 },
-  { name: "Dwarka Sector 21", totalSlots: 60, price: 18 },
-  { name: "Kashmere Gate", totalSlots: 150, price: 35 },
+    { name: "Metro A", totalSlots: 50, price: 20 },
+    { name: "Metro UP", totalSlots: 80, price: 25 },
+    { name: "Rajiv Chowk", totalSlots: 100, price: 40 },
+    { name: "Huda City Centre", totalSlots: 120, price: 30 },
+    { name: "Noida Sector 18", totalSlots: 90, price: 15 },
+    { name: "Dwarka Sector 21", totalSlots: 60, price: 18 },
+    { name: "Kashmere Gate", totalSlots: 150, price: 35 },
 
-  { name: "Test Parking 1", totalSlots: 5, price: 10 },
-  { name: "Test Parking 2", totalSlots: 5, price: 12 },
-  { name: "Test Parking 3", totalSlots: 7, price: 15 }
-]);
+    { name: "Test Parking 1", totalSlots: 5, price: 10 },
+    { name: "Test Parking 2", totalSlots: 5, price: 12 },
+    { name: "Test Parking 3", totalSlots: 7, price: 15 }
+  ]);
 
   res.send("Parking data added");
 });
 
-//  GET PARKING WITH AVAILABLE SLOTS
+
+// ✅ FIXED: GET PARKING WITH CORRECT AVAILABLE SLOTS
 app.get("/parking", async (req, res) => {
   try {
     const parkings = await Parking.find();
-
     const result = [];
 
-    for (let p of parkings) {
-      // count ACTIVE bookings (current time)
-      const now = new Date();
+    const now = new Date(); // 🔥 current time
 
-      const activeBookings = await Booking.find({
+    for (let p of parkings) {
+
+      // 🔥 ONLY COUNT ACTIVE BOOKINGS
+      const activeBookings = await Booking.countDocuments({
         location: p.name,
         startTime: { $lt: now },
         endTime: { $gt: now }
       });
 
-      const availableSlots = p.totalSlots - activeBookings.length;
-
       result.push({
         name: p.name,
         price: p.price,
         totalSlots: p.totalSlots,
-        availableSlots
+        availableSlots: Math.max(0, p.totalSlots - activeBookings)
       });
     }
 
@@ -99,9 +92,11 @@ app.get("/parking", async (req, res) => {
   }
 });
 
+
+// BOOK PARKING
 app.post("/book", async (req, res) => {
   try {
-    const { location, startTime, endTime } = req.body;
+    const { location, startTime, endTime, name, vehicle } = req.body;
 
     const parking = await Parking.findOne({ name: location });
 
@@ -109,31 +104,34 @@ app.post("/book", async (req, res) => {
       return res.json({ success: false, message: "Parking not found" });
     }
 
-    const overlappingBookings = await Booking.find({
+    // CHECK OVERLAP (correct logic already)
+    const overlap = await Booking.find({
       location,
       startTime: { $lt: new Date(endTime) },
       endTime: { $gt: new Date(startTime) }
     });
 
-    if (overlappingBookings.length >= parking.totalSlots) {
+    if (overlap.length >= parking.totalSlots) {
       return res.json({
         success: false,
         message: "Parking Full for selected time"
       });
     }
 
-    const newBooking = new Booking({
+    const booking = new Booking({
       location,
       startTime,
-      endTime
+      endTime,
+      name,
+      vehicle
     });
 
-    await newBooking.save();
+    await booking.save();
 
     res.json({
       success: true,
       message: "Booking successful",
-      data: newBooking
+      data: booking
     });
 
   } catch (err) {
@@ -141,12 +139,31 @@ app.post("/book", async (req, res) => {
   }
 });
 
+
 // GET BOOKINGS
 app.get("/bookings", async (req, res) => {
   const data = await Booking.find();
   res.json(data);
 });
 
+
+// CANCEL BOOKING
+app.delete("/cancel/:id", async (req, res) => {
+  try {
+    await Booking.findByIdAndDelete(req.params.id);
+
+    res.json({
+      success: true,
+      message: "Booking cancelled successfully"
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// START SERVER
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });

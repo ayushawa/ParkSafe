@@ -1,119 +1,99 @@
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
-import QRCodeDisplay from '../components/QRCodeDisplay';
-import { WifiOff, Calendar } from 'lucide-react';
 
 const MyBookingsScreen = () => {
   const [bookings, setBookings] = useState([]);
-
 
   useEffect(() => {
     fetchBookings();
   }, []);
 
   const fetchBookings = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/bookings");
-      const data = await res.json();
+    const res = await fetch("http://localhost:5000/bookings");
+    const data = await res.json();
 
-    
-      const formatted = data.map((b) => {
-        // handle old data (time only)
-        if (!b.startTime || !b.endTime) {
-          return {
-            id: b._id.slice(-6),
-            location: b.location,
-            date: "Old Booking",
-            time: b.time || "N/A",
-            isActive: false
-          };
-        }
+    const now = new Date();
 
-        // handle new data
-        const start = new Date(b.startTime);
-        const end = new Date(b.endTime);
+    const formatted = data.map((b) => {
+      const start = new Date(b.startTime);
+      const end = new Date(b.endTime);
 
-        return {
-          id: b._id.slice(-6),
-          location: b.location,
-          date: start.toDateString(),
-          time: `${start.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`,
-          isActive: end > new Date()
-        };
-      });
+      return {
+        id: b._id,
+        location: b.location,
+        name: b.name,
+        vehicle: b.vehicle,
+        date: start.toDateString(),
+        time: `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
+        isActive: start <= now && end >= now,
+        isFuture: start > now,
+        isPast: end < now
+      };
+    });
 
-      setBookings(formatted);
-
-    } catch (err) {
-      console.log(err);
-      alert("Error fetching bookings");
-    }
+    setBookings(formatted);
   };
 
-  const activeBooking = bookings.find(b => b.isActive);
-  const pastBookings = bookings.filter(b => !b.isActive);
+  const handleCancel = async (id) => {
+    await fetch(`http://localhost:5000/cancel/${id}`, {
+      method: "DELETE"
+    });
+    fetchBookings();
+  };
+
+  const activeNow = bookings.find(b => b.isActive);
+  const upcoming = bookings.filter(b => b.isFuture);
+  const past = bookings.filter(b => b.isPast);
 
   return (
     <div className="page-container">
       <Header title="My Bookings" />
-      
-      <div className="p-4 flex-col gap-6">
-        <div className="flex items-center gap-2 text-caption">
-          <WifiOff size={16} />
-          <span>Available offline</span>
-        </div>
 
-        {activeBooking && (
-          <div>
-            <h3 className="text-h3 mb-4 text-color-secondary">Active Now</h3>
-            <div 
-              style={{
-                backgroundColor: 'var(--surface-color)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '24px 16px',
-                border: '1px solid var(--border-color)',
-              }}
-            >
-              <h2 className="text-h2 text-center mb-2">{activeBooking.location}</h2>
-              <div className="flex justify-center items-center gap-2 mb-6 text-color-secondary text-body">
-                <Calendar size={16} />
-                <span>{activeBooking.date}, {activeBooking.time}</span>
-              </div>
-              
-              <QRCodeDisplay 
-                id={activeBooking.id} 
-                validUntil={activeBooking.time.split(' - ')[1] || "N/A"} 
-                isActive={true} 
-              />
+      <div style={{ padding: "16px" }}>
+
+        {activeNow && (
+          <>
+            <h3>Active Now</h3>
+            <div className="booking-card">
+              <div>{activeNow.location}</div>
+              <div>{activeNow.name} | {activeNow.vehicle}</div>
+              <div>{activeNow.date} • {activeNow.time}</div>
+              <button className="btn-cancel" onClick={() => handleCancel(activeNow.id)}>
+                Cancel
+              </button>
             </div>
-          </div>
+          </>
         )}
 
-        {pastBookings.length > 0 && (
-          <div className="mt-4">
-            <h3 className="text-h3 mb-4 text-color-secondary">Past Bookings</h3>
-            {pastBookings.map((booking) => (
-              <div 
-                key={booking.id}
-                className="flex justify-between items-center p-4 mb-3"
-                style={{
-                  backgroundColor: 'var(--surface-color)',
-                  borderRadius: 'var(--radius-md)',
-                }}
-              >
-                <div>
-                  <div className="text-body-strong">{booking.location}</div>
-                  <div className="text-caption mt-1">
-                    {booking.date} • {booking.time}
-                  </div>
-                </div>
-                <div className="text-color-secondary text-body">
-                  {booking.id}
-                </div>
+        {upcoming.length > 0 && (
+          <>
+            <h3>Upcoming</h3>
+            {upcoming.map(b => (
+              <div key={b.id} className="booking-card">
+                <div>{b.location}</div>
+                <div>{b.name} | {b.vehicle}</div>
+                <div>{b.date} • {b.time}</div>
+                <button className="btn-cancel" onClick={() => handleCancel(b.id)}>
+                  Cancel
+                </button>
               </div>
             ))}
-          </div>
+          </>
         )}
+
+        {past.length > 0 && (
+          <>
+            <h3>Past</h3>
+            {past.map(b => (
+              <div key={b.id} className="booking-card">
+                <div>{b.location}</div>
+                <div>{b.name} | {b.vehicle}</div>
+                <div>{b.date} • {b.time}</div>
+              </div>
+            ))}
+          </>
+        )}
+
       </div>
     </div>
   );
