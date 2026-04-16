@@ -5,7 +5,7 @@ const ParkingCard = ({ name, address, distance, available, total, price, onClick
 
   return (
     <div 
-      onClick={onClick}
+      onClick={isAvailable ? onClick : null}
       style={{
         padding: '16px',
         borderRadius: '16px',
@@ -15,26 +15,17 @@ const ParkingCard = ({ name, address, distance, available, total, price, onClick
         background: 'rgba(255,255,255,0.06)',
         border: '1px solid rgba(255,255,255,0.08)',
         boxShadow: '0 8px 30px rgba(0,0,0,0.4)',
-        opacity: isAvailable ? 1 : 0.5,
-        transform: 'scale(1)'
-      }}
-      onMouseDown={(e) => {
-        if (isAvailable) e.currentTarget.style.transform = 'scale(0.97)';
-      }}
-      onMouseUp={(e) => {
-        e.currentTarget.style.transform = 'scale(1)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'scale(1)';
+        opacity: isAvailable ? 1 : 0.5
       }}
     >
-      
+
       {/* TOP ROW */}
       <div className="flex justify-between items-center">
         <h3 style={{ color: '#fff', fontSize: '16px', fontWeight: '600' }}>
           {name}
         </h3>
 
+        {/* 🔥 STATUS BADGE */}
         <span 
           style={{
             background: isAvailable
@@ -57,7 +48,7 @@ const ParkingCard = ({ name, address, distance, available, total, price, onClick
         style={{ color: '#9ca3af', fontSize: '13px' }}
       >
         <MapPin size={14} />
-        <span 
+        <span
           style={{
             whiteSpace: 'nowrap',
             overflow: 'hidden',

@@ -50,7 +50,6 @@ app.get("/add-parking", async (req, res) => {
     { name: "Noida Sector 18", totalSlots: 90, price: 15 },
     { name: "Dwarka Sector 21", totalSlots: 60, price: 18 },
     { name: "Kashmere Gate", totalSlots: 150, price: 35 },
-
     { name: "Test Parking 1", totalSlots: 5, price: 10 },
     { name: "Test Parking 2", totalSlots: 5, price: 12 },
     { name: "Test Parking 3", totalSlots: 7, price: 15 }
@@ -60,17 +59,15 @@ app.get("/add-parking", async (req, res) => {
 });
 
 
-// ✅ FIXED: GET PARKING WITH CORRECT AVAILABLE SLOTS
+// GET PARKING (AVAILABLE SLOTS RIGHT NOW)
 app.get("/parking", async (req, res) => {
   try {
     const parkings = await Parking.find();
     const result = [];
 
-    const now = new Date(); // 🔥 current time
+    const now = new Date();
 
     for (let p of parkings) {
-
-      // 🔥 ONLY COUNT ACTIVE BOOKINGS
       const activeBookings = await Booking.countDocuments({
         location: p.name,
         startTime: { $lt: now },
@@ -93,7 +90,7 @@ app.get("/parking", async (req, res) => {
 });
 
 
-// BOOK PARKING
+// 🔥 FINAL FIXED BOOKING ROUTE
 app.post("/book", async (req, res) => {
   try {
     const { location, startTime, endTime, name, vehicle } = req.body;
@@ -104,24 +101,38 @@ app.post("/book", async (req, res) => {
       return res.json({ success: false, message: "Parking not found" });
     }
 
-    // CHECK OVERLAP (correct logic already)
-    const overlap = await Booking.find({
+    // ✅ convert once
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+
+    // ✅ validation
+    if (end <= start) {
+      return res.json({
+        success: false,
+        message: "Invalid time range"
+      });
+    }
+
+    // 🔥 check overlapping bookings
+    const overlapCount = await Booking.countDocuments({
       location,
-      startTime: { $lt: new Date(endTime) },
-      endTime: { $gt: new Date(startTime) }
+      startTime: { $lt: end },
+      endTime: { $gt: start }
     });
 
-    if (overlap.length >= parking.totalSlots) {
+    // ✅ check slot limit
+    if (overlapCount >= parking.totalSlots) {
       return res.json({
         success: false,
         message: "Parking Full for selected time"
       });
     }
 
+    // ✅ create booking
     const booking = new Booking({
       location,
-      startTime,
-      endTime,
+      startTime: start,
+      endTime: end,
       name,
       vehicle
     });

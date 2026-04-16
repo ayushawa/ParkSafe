@@ -54,45 +54,20 @@ const ParkingListScreen = () => {
           </div>
         )}
 
-        {parkings.map((parking) => {
-          const isFull = parking.available === 0;
-
-          return (
-            <div 
-              key={parking.id} 
-              className="mb-4"
+        {parkings.map((parking) => (
+          <div key={parking.id} className="mb-4">
+            
+            <ParkingCard
+              {...parking}
               onClick={() => {
-                if (!isFull) {
+                if (parking.available > 0) {
                   navigate('/confirm', { state: { parking } });
                 }
               }}
-              style={{
-                opacity: isFull ? 0.5 : 1,
-                cursor: isFull ? 'not-allowed' : 'pointer',
-                position: 'relative'
-              }}
-            >
-              <ParkingCard {...parking} />
+            />
 
-              {isFull && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    background: 'red',
-                    color: '#fff',
-                    padding: '4px 10px',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
-                >
-                  FULL
-                </div>
-              )}
-            </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
