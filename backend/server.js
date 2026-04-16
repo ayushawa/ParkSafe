@@ -59,26 +59,47 @@ app.get("/add-parking", async (req, res) => {
 });
 
 
-// GET PARKING (AVAILABLE SLOTS RIGHT NOW)
+// 🔥 FINAL FIXED PARKING ROUTE (TIME BASED)
 app.get("/parking", async (req, res) => {
   try {
+    const { startTime, endTime } = req.query;
+
+    console.log("REQ QUERY:", req.query); // DEBUG
+
     const parkings = await Parking.find();
     const result = [];
 
-    const now = new Date();
-
     for (let p of parkings) {
-      const activeBookings = await Booking.countDocuments({
-        location: p.name,
-        startTime: { $lt: now },
-        endTime: { $gt: now }
-      });
+
+      let overlapCount = 0;
+
+      // ✅ IF USER SELECTED TIME
+      if (startTime && endTime) {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+
+        overlapCount = await Booking.countDocuments({
+          location: p.name,
+          startTime: { $lt: end },
+          endTime: { $gt: start }
+        });
+
+      } else {
+        // ✅ DEFAULT → CURRENT TIME
+        const now = new Date();
+
+        overlapCount = await Booking.countDocuments({
+          location: p.name,
+          startTime: { $lt: now },
+          endTime: { $gt: now }
+        });
+      }
 
       result.push({
         name: p.name,
         price: p.price,
         totalSlots: p.totalSlots,
-        availableSlots: Math.max(0, p.totalSlots - activeBookings)
+        availableSlots: Math.max(0, p.totalSlots - overlapCount)
       });
     }
 
@@ -90,7 +111,7 @@ app.get("/parking", async (req, res) => {
 });
 
 
-// 🔥 FINAL FIXED BOOKING ROUTE
+// 🔥 BOOK PARKING (CORRECT)
 app.post("/book", async (req, res) => {
   try {
     const { location, startTime, endTime, name, vehicle } = req.body;
@@ -101,11 +122,9 @@ app.post("/book", async (req, res) => {
       return res.json({ success: false, message: "Parking not found" });
     }
 
-    // ✅ convert once
     const start = new Date(startTime);
     const end = new Date(endTime);
 
-    // ✅ validation
     if (end <= start) {
       return res.json({
         success: false,
@@ -113,14 +132,12 @@ app.post("/book", async (req, res) => {
       });
     }
 
-    // 🔥 check overlapping bookings
     const overlapCount = await Booking.countDocuments({
       location,
       startTime: { $lt: end },
       endTime: { $gt: start }
     });
 
-    // ✅ check slot limit
     if (overlapCount >= parking.totalSlots) {
       return res.json({
         success: false,
@@ -128,7 +145,6 @@ app.post("/book", async (req, res) => {
       });
     }
 
-    // ✅ create booking
     const booking = new Booking({
       location,
       startTime: start,

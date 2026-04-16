@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import QRCodeDisplay from '../components/QRCodeDisplay';
@@ -11,11 +11,12 @@ const BookingConfirmationScreen = () => {
 
   const parking = state?.parking || { name: 'Metro Parking', price: 20 };
 
+  // 🔥 USE PASSED TIME FROM LIST SCREEN
+  const [startTime, setStartTime] = useState(state?.startTime || null);
+  const [endTime, setEndTime] = useState(state?.endTime || null);
+
   const [name, setName] = useState("");
   const [vehicle, setVehicle] = useState("");
-
-  const [startTime, setStartTime] = useState(null);
-  const [endTime, setEndTime] = useState(null);
 
   const [availableSlots, setAvailableSlots] = useState(null);
 
@@ -23,27 +24,33 @@ const BookingConfirmationScreen = () => {
   const [bookingId, setBookingId] = useState("");
   const [endTimeText, setEndTimeText] = useState("");
 
+  // 🔥 CHECK AVAILABILITY (using /parking route)
   const checkAvailability = async (start, end) => {
-    if (!start || !end) return;
+    if (!start || !end || start >= end) return;
 
-    const res = await fetch("http://localhost:5000/check-availability", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        location: parking.name,
-        startTime: start.toISOString(),
-        endTime: end.toISOString()
-      })
-    });
+    try {
+      const url = `http://localhost:5000/parking?startTime=${start.toISOString()}&endTime=${end.toISOString()}`;
 
-    const data = await res.json();
+      const res = await fetch(url);
+      const data = await res.json();
 
-    if (data.success) {
-      setAvailableSlots(data.availableSlots);
+      const currentParking = data.find(p => p.name === parking.name);
+
+      if (currentParking) {
+        setAvailableSlots(currentParking.availableSlots);
+      }
+
+    } catch (err) {
+      console.log(err);
     }
   };
+
+  // 🔥 AUTO CHECK ON LOAD (IMPORTANT)
+  useEffect(() => {
+    if (startTime && endTime) {
+      checkAvailability(startTime, endTime);
+    }
+  }, []);
 
   const handleBook = async () => {
     if (!name || !vehicle || !startTime || !endTime) {
@@ -88,10 +95,12 @@ const BookingConfirmationScreen = () => {
     }
   };
 
+  // ---------------- BOOKED SCREEN ----------------
   if (isBooked) {
     return (
       <div className="page-container">
         <Header title="Ticket" />
+
         <div style={{ padding: "20px", textAlign: "center" }}>
           <h2>Booking Confirmed</h2>
 
@@ -109,6 +118,7 @@ const BookingConfirmationScreen = () => {
     );
   }
 
+  // ---------------- FORM SCREEN ----------------
   return (
     <div className="page-container">
       <Header title="Book Slot" showBack />
@@ -119,11 +129,29 @@ const BookingConfirmationScreen = () => {
         <div className="form-card">
 
           <div className="input-label">Name</div>
-          <input className="input-field" value={name} onChange={(e) => setName(e.target.value)} />
+          <input
+            className="input-field"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
           <div className="input-label">Vehicle</div>
-          <input className="input-field" value={vehicle} onChange={(e) => setVehicle(e.target.value)} />
+          <input
+            className="input-field"
+            value={vehicle}
+            onChange={(e) => setVehicle(e.target.value)}
+          />
 
+          {/* 🔥 SHOW SELECTED TIME */}
+          {startTime && endTime && (
+            <div style={{ marginBottom: "10px", color: "#aaa" }}>
+              Selected: {startTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+              {" → "}
+              {endTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+            </div>
+          )}
+
+          {/* OPTIONAL: USER CAN STILL EDIT TIME */}
           <div className="input-label">Start Time</div>
           <DatePicker
             selected={startTime}
@@ -134,7 +162,6 @@ const BookingConfirmationScreen = () => {
             showTimeSelect
             minDate={new Date()}
             dateFormat="Pp"
-            placeholderText="Select start time"
             className="datepicker-input"
           />
 
@@ -148,22 +175,24 @@ const BookingConfirmationScreen = () => {
             showTimeSelect
             minDate={new Date()}
             dateFormat="Pp"
-            placeholderText="Select end time"
             className="datepicker-input"
           />
 
+          {/* AVAILABLE */}
           {availableSlots !== null && (
             <div style={{ marginTop: "10px", fontWeight: "bold" }}>
               Available Slots: {availableSlots}
             </div>
           )}
 
+          {/* FULL */}
           {availableSlots === 0 && (
             <div style={{ color: "red", marginTop: "8px" }}>
               No slots available
             </div>
           )}
 
+          {/* BUTTON */}
           <button
             className="btn-primary"
             disabled={availableSlots === 0}
