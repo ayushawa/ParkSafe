@@ -5,6 +5,7 @@ import QRCodeDisplay from '../components/QRCodeDisplay';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getToken } from "../utils/auth";
+import { toast } from "react-toastify"; // ✅
 
 const BookingConfirmationScreen = () => {
   const { state } = useLocation();
@@ -26,7 +27,6 @@ const BookingConfirmationScreen = () => {
 
   const [loading, setLoading] = useState(false);
 
-  // ✅ PRICE FUNCTION
   const calculatePrice = (startTime, endTime, pricePerHour) => {
     if (!startTime || !endTime) return null;
 
@@ -69,12 +69,12 @@ const BookingConfirmationScreen = () => {
     if (loading) return;
 
     if (!name || !vehicle || !startTime || !endTime) {
-      alert("Fill all fields");
+      toast.error("Fill all fields"); // ✅
       return;
     }
 
     if (endTime <= startTime) {
-      alert("End must be after start");
+      toast.error("End must be after start"); // ✅
       return;
     }
 
@@ -101,6 +101,8 @@ const BookingConfirmationScreen = () => {
       const data = await res.json();
 
       if (data.success) {
+        toast.success("Booking successful 🎉"); // ✅
+
         const shortId = data.data._id.slice(-6);
         setBookingId("PRK-" + shortId);
 
@@ -112,7 +114,7 @@ const BookingConfirmationScreen = () => {
         setEndTimeText("Valid till " + formatted);
         setIsBooked(true);
       } else {
-        alert(data.message);
+        toast.error(data.message); // ✅
       }
 
     } catch (err) {
@@ -172,7 +174,6 @@ const BookingConfirmationScreen = () => {
             onChange={(e) => setVehicle(e.target.value)}
           />
 
-          {/* ✅ PRICE DISPLAY */}
           {pricing && (
             <div style={{ marginBottom: "10px" }}>
               <div>Duration: {pricing.duration} hours</div>

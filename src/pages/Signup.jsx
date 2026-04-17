@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // ✅
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -10,7 +11,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     if (!name || !email || !password) {
-      alert("Fill all fields");
+      toast.error("Fill all fields"); // ✅
       return;
     }
 
@@ -30,10 +31,10 @@ const Signup = () => {
       const data = await res.json();
 
       if (res.ok) {
-        alert("Signup successful");
+        toast.success("Signup successful 🎉"); // ✅
         navigate("/login");
       } else {
-        alert(data.message);
+        toast.error(data.message); // ✅
       }
 
     } catch (err) {

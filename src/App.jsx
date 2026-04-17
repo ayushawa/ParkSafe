@@ -13,41 +13,69 @@ const isLoggedIn = () => {
   return !!localStorage.getItem("token");
 };
 
+const Layout = ({ children }) => (
+  <div className="layout">
+    <Sidebar />
+    <div className="main-content">{children}</div>
+  </div>
+);
+
 function App() {
   return (
     <Router>
-
       <Routes>
 
-        {/* PUBLIC ROUTES */}
-        <Route path="/login" element={!isLoggedIn() ? <Login /> : <Navigate to="/" />} />
-        <Route path="/signup" element={!isLoggedIn() ? <Signup /> : <Navigate to="/" />} />
+        {/* LOGIN */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
 
-        {/* PROTECTED ROUTES WITH SIDEBAR */}
+        {/* ROOT */}
         <Route
-          path="/*"
+          path="/"
           element={
-            isLoggedIn() ? (
-              <div className="layout">
-                <Sidebar />
-                <div className="main-content">
-                  <Routes>
-                    <Route path="/" element={<HomeScreen />} />
-                    <Route path="/list" element={<ParkingListScreen />} />
-                    <Route path="/confirm" element={<BookingConfirmationScreen />} />
-                    <Route path="/bookings" element={<MyBookingsScreen />} />
-                    <Route path="/ride" element={<RideBookingScreen />} />
-                  </Routes>
-                </div>
-              </div>
-            ) : (
-              <Navigate to="/login" />
-            )
+            isLoggedIn()
+              ? <Layout><HomeScreen /></Layout>
+              : <Navigate to="/login" />
+          }
+        />
+
+        <Route
+          path="/list"
+          element={
+            isLoggedIn()
+              ? <Layout><ParkingListScreen /></Layout>
+              : <Navigate to="/login" />
+          }
+        />
+
+        <Route
+          path="/confirm"
+          element={
+            isLoggedIn()
+              ? <Layout><BookingConfirmationScreen /></Layout>
+              : <Navigate to="/login" />
+          }
+        />
+
+        <Route
+          path="/bookings"
+          element={
+            isLoggedIn()
+              ? <Layout><MyBookingsScreen /></Layout>
+              : <Navigate to="/login" />
+          }
+        />
+
+        <Route
+          path="/ride"
+          element={
+            isLoggedIn()
+              ? <Layout><RideBookingScreen /></Layout>
+              : <Navigate to="/login" />
           }
         />
 
       </Routes>
-
     </Router>
   );
 }

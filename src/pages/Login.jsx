@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -10,7 +11,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Enter email and password");
+      toast.error("Enter email and password");
       return;
     }
 
@@ -22,12 +23,15 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
 
-      alert("Login successful");
+      toast.success("Login successful 🎉");
 
-      window.location.href = "/";
+      // ✅ ONLY FIX THAT WORKS WITH YOUR CURRENT APP LOGIC
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 800);
 
     } catch (err) {
-      alert(err?.response?.data?.message || "Login failed");
+      toast.error(err?.response?.data?.message || "Login failed");
     }
   };
 
