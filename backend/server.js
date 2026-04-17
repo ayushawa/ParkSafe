@@ -31,6 +31,7 @@ const Booking = mongoose.model("Booking", {
   endTime: Date,
   name: String,
   vehicle: String,
+  totalPrice: Number, // ✅ ADDED
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"
@@ -115,7 +116,7 @@ app.get("/parking", async (req, res) => {
   }
 });
 
-// 🔥 BOOK PARKING (SAFE VERSION)
+// 🔥 BOOK PARKING (WITH PRICING)
 app.post("/book", auth, async (req, res) => {
   try {
     const { location, startTime, endTime, name, vehicle } = req.body;
@@ -135,6 +136,12 @@ app.post("/book", auth, async (req, res) => {
         message: "Invalid time range"
       });
     }
+
+    // ✅ PRICE CALCULATION (SAFE)
+    const durationMs = end - start;
+    const durationHours = durationMs / (1000 * 60 * 60);
+    const roundedDuration = Math.round(durationHours * 100) / 100;
+    const totalPrice = Math.round(roundedDuration * parking.price * 100) / 100;
 
     // 🔥 PREVENT SAME USER DUPLICATE BOOKING
     const existing = await Booking.findOne({
@@ -171,6 +178,7 @@ app.post("/book", auth, async (req, res) => {
       endTime: end,
       name,
       vehicle,
+      totalPrice, // ✅ SAVED
       userId: req.user.id
     });
 
@@ -179,7 +187,9 @@ app.post("/book", auth, async (req, res) => {
     res.json({
       success: true,
       message: "Booking successful",
-      data: booking
+      data: booking,
+      totalPrice,
+      duration: roundedDuration
     });
 
   } catch (err) {

@@ -24,7 +24,23 @@ const BookingConfirmationScreen = () => {
   const [bookingId, setBookingId] = useState("");
   const [endTimeText, setEndTimeText] = useState("");
 
-  const [loading, setLoading] = useState(false); // 🔥 IMPORTANT
+  const [loading, setLoading] = useState(false);
+
+  // ✅ PRICE FUNCTION
+  const calculatePrice = (startTime, endTime, pricePerHour) => {
+    if (!startTime || !endTime) return null;
+
+    const durationMs = endTime - startTime;
+    if (durationMs <= 0) return null;
+
+    const hours = durationMs / (1000 * 60 * 60);
+    const rounded = Math.round(hours * 100) / 100;
+    const total = Math.round(rounded * pricePerHour * 100) / 100;
+
+    return { duration: rounded, totalPrice: total };
+  };
+
+  const pricing = calculatePrice(startTime, endTime, parking.price);
 
   const checkAvailability = async (start, end) => {
     if (!start || !end || start >= end) return;
@@ -50,7 +66,7 @@ const BookingConfirmationScreen = () => {
   }, []);
 
   const handleBook = async () => {
-    if (loading) return; // 🔥 prevent multi-click
+    if (loading) return;
 
     if (!name || !vehicle || !startTime || !endTime) {
       alert("Fill all fields");
@@ -63,7 +79,7 @@ const BookingConfirmationScreen = () => {
     }
 
     try {
-      setLoading(true); // 🔥 lock
+      setLoading(true);
 
       const token = getToken();
 
@@ -102,7 +118,7 @@ const BookingConfirmationScreen = () => {
     } catch (err) {
       console.log(err);
     } finally {
-      setLoading(false); // 🔥 unlock safety
+      setLoading(false);
     }
   };
 
@@ -118,6 +134,12 @@ const BookingConfirmationScreen = () => {
             validUntil={endTimeText}
             isActive={true}
           />
+
+          {pricing && (
+            <div style={{ marginTop: "10px" }}>
+              <div>Total Paid: ₹{pricing.totalPrice}</div>
+            </div>
+          )}
 
           <button className="btn-primary" onClick={() => navigate('/')}>
             Done
@@ -149,6 +171,14 @@ const BookingConfirmationScreen = () => {
             value={vehicle}
             onChange={(e) => setVehicle(e.target.value)}
           />
+
+          {/* ✅ PRICE DISPLAY */}
+          {pricing && (
+            <div style={{ marginBottom: "10px" }}>
+              <div>Duration: {pricing.duration} hours</div>
+              <div>Total Price: ₹{pricing.totalPrice}</div>
+            </div>
+          )}
 
           <button
             className="btn-primary"

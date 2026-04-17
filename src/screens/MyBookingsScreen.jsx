@@ -37,6 +37,7 @@ const MyBookingsScreen = () => {
           location: b.location,
           name: b.name,
           vehicle: b.vehicle,
+          price: b.totalPrice || 0, // ✅ PRICE ADDED
           date: start.toDateString(),
           time: `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
           isActive: start <= now && end >= now,
@@ -53,7 +54,7 @@ const MyBookingsScreen = () => {
   };
 
   const handleCancel = async (id) => {
-    const token = getToken(); // 🔥 FIXED
+    const token = getToken();
 
     await fetch(`http://localhost:5000/cancel/${id}`, {
       method: "DELETE",
@@ -82,6 +83,7 @@ const MyBookingsScreen = () => {
               <div>{activeNow.location}</div>
               <div>{activeNow.name} | {activeNow.vehicle}</div>
               <div>{activeNow.date} • {activeNow.time}</div>
+              <div>₹{activeNow.price}</div> {/* ✅ PRICE */}
               <button className="btn-cancel" onClick={() => handleCancel(activeNow.id)}>
                 Cancel
               </button>
@@ -97,6 +99,7 @@ const MyBookingsScreen = () => {
                 <div>{b.location}</div>
                 <div>{b.name} | {b.vehicle}</div>
                 <div>{b.date} • {b.time}</div>
+                <div>₹{b.price}</div> {/* ✅ PRICE */}
                 <button className="btn-cancel" onClick={() => handleCancel(b.id)}>
                   Cancel
                 </button>
@@ -113,6 +116,7 @@ const MyBookingsScreen = () => {
                 <div>{b.location}</div>
                 <div>{b.name} | {b.vehicle}</div>
                 <div>{b.date} • {b.time}</div>
+                <div>₹{b.price}</div> {/* ✅ PRICE */}
               </div>
             ))}
           </>
