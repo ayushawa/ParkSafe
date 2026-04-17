@@ -1,15 +1,13 @@
 :root {
-  --bg: #000;
-  --surface: #111;
-  --surface-2: #1c1c1e;
-  --text: #fff;
-  --subtext: #a1a1a6;
-  --border: #2c2c2e;
+  --bg: #f5f7fb;
+  --surface: #ffffff;
+  --text: #1c1c1e;
+  --subtext: #6b7280;
+  --border: #e5e7eb;
 
-  --blue: #0a84ff;
-  --blue2: #007aff;
-  --red: #ff3b30;
-  --green: #34c759;
+  --blue: #2563eb;
+  --blue2: #3b82f6;
+  --red: #ef4444;
 }
 
 /* RESET */
@@ -22,10 +20,9 @@
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, system-ui;
+  font-family: -apple-system, system-ui, sans-serif;
 }
 
-/* ROOT */
 #root {
   width: 100%;
   height: 100vh;
@@ -48,15 +45,14 @@ body {
 
 .sidebar {
   width: 220px;
-  background: #111;
+  background: #111827;
   color: white;
   padding: 20px;
-  border-right: 1px solid var(--border);
 }
 
 .logo {
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 30px;
 }
 
@@ -69,7 +65,7 @@ body {
 }
 
 .sidebar-item:hover {
-  background: #222;
+  background: #1f2937;
 }
 
 .sidebar-item.active {
@@ -82,9 +78,8 @@ body {
   width: 100%;
 }
 
-/* WRAPPER (center content like before) */
 .wrapper {
-  max-width: 480px;
+  max-width: 500px;
   margin: 0 auto;
   width: 100%;
 }
@@ -92,7 +87,7 @@ body {
 /* ================= TEXT ================= */
 
 .text-h2 {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   margin-bottom: 20px;
 }
@@ -106,41 +101,27 @@ body {
 /* ================= CARD ================= */
 
 .card {
-  background: linear-gradient(145deg, #111, #1c1c1e);
+  background: var(--surface);
   padding: 20px;
   border-radius: 16px;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
 /* ================= INPUT ================= */
-
-.input-group {
-  margin-bottom: 16px;
-}
-
-.input-group label {
-  font-size: 13px;
-  color: var(--subtext);
-  display: block;
-  margin-bottom: 6px;
-}
 
 .input-field {
   width: 100%;
   padding: 14px;
   border-radius: 10px;
   border: 1px solid var(--border);
-  background: #0d0d0d;
-  color: white;
+  background: #fff;
   font-size: 14px;
-  transition: 0.2s;
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--blue);
-  box-shadow: 0 0 0 2px rgba(10,132,255,0.2);
 }
 
 /* ================= BUTTON ================= */
@@ -153,30 +134,19 @@ body {
   background: linear-gradient(135deg, var(--blue), var(--blue2));
   color: white;
   font-weight: 600;
-  font-size: 15px;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: scale(0.98);
 }
 
 /* ================= BOOKING CARD ================= */
 
 .booking-card {
-  background: var(--surface-2);
+  background: white;
   border-radius: 16px;
   padding: 16px;
   border: 1px solid var(--border);
   margin-bottom: 16px;
 }
 
-/* CANCEL BUTTON */
 .btn-cancel {
   margin-top: 10px;
   padding: 10px;
@@ -185,92 +155,121 @@ body {
   border: none;
   background: var(--red);
   color: white;
+}
+
+/* ================= LOGIN PAGE ================= */
+
+.login-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #eaf1f8, #f9fbff);
+}
+
+/* 🔥 ONE SINGLE CARD */
+.login-container {
+  display: flex;
+  width: 900px;
+  height: 480px;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+/* 🔥 IMAGE LEFT */
+.login-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent; /* ❌ NO SPLIT */
+}
+
+.login-image img {
+  width: 80%;
+  max-width: 380px;
+  object-fit: contain;
+}
+
+/* 🔥 LOGIN RIGHT */
+.login-form {
+  flex: 1;
+  padding: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: transparent; /* ❌ SAME CARD */
+}
+
+/* TITLE */
+.login-title {
+  font-size: 24px;
   font-weight: 600;
+  margin-bottom: 30px;
+}
+
+/* INPUT */
+.login-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 18px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  background: transparent;
+  outline: none;
+}
+
+/* BUTTON */
+.login-btn {
+  padding: 10px 20px;
+  background: #111;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* ACTIONS */
+.login-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reset-text {
+  font-size: 12px;
+  color: #666;
+}
+
+/* SIGNUP */
+.signup-text {
+  margin-top: 15px;
+  font-size: 13px;
+}
+
+.signup-text span {
+  color: var(--blue);
+  cursor: pointer;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+    width: 90%;
+    height: auto;
+  }
+
+  .login-image {
+    display: none;
+  }
 }
 
 /* ================= DATEPICKER ================= */
 
 .react-datepicker-popper {
   z-index: 9999 !important;
-  margin-left: 80px;
-}
-
-.react-datepicker {
-  background: #1c1c1e !important;
-  border: 1px solid #38383a !important;
-  border-radius: 16px !important;
-  padding: 8px;
-  color: white !important;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-}
-
-.react-datepicker__header {
-  background: #2c2c2e !important;
-  border-bottom: 1px solid #3a3a3c !important;
-}
-
-.react-datepicker__current-month {
-  color: white !important;
-  font-weight: 600;
-}
-
-.react-datepicker__day-name {
-  color: #a1a1a6 !important;
-}
-
-.react-datepicker__day {
-  color: white !important;
-  border-radius: 50%;
-}
-
-.react-datepicker__day:hover {
-  background: rgba(10,132,255,0.2) !important;
-}
-
-.react-datepicker__day--selected {
-  background: linear-gradient(135deg, #0a84ff, #007aff) !important;
-}
-
-.react-datepicker__day--today {
-  border: 1px solid #0a84ff !important;
-}
-
-.react-datepicker__time-container {
-  background: #1c1c1e !important;
-  border-left: 1px solid #333 !important;
-}
-
-.react-datepicker__time {
-  background: #1c1c1e !important;
-}
-
-.react-datepicker__time-box {
-  background: #1c1c1e !important;
-}
-
-.react-datepicker__time-list {
-  background: #1c1c1e !important;
-}
-
-.react-datepicker__time-list-item {
-  color: white !important;
-  padding: 8px;
-}
-
-.react-datepicker__time-list-item:hover {
-  background: rgba(10,132,255,0.2) !important;
-}
-
-.react-datepicker__time-list-item--selected {
-  background: linear-gradient(135deg, #0a84ff, #007aff) !important;
-}
-
-.datepicker-input {
-  width: 100%;
-  padding: 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: #0d0d0d;
-  color: white;
-  font-size: 14px;
 }

@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import parkingImg from "../assets/parking.png";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,6 @@ export default function Login() {
 
       toast.success("Login successful 🎉");
 
-      // ✅ ONLY FIX THAT WORKS WITH YOUR CURRENT APP LOGIC
       setTimeout(() => {
         window.location.href = "/";
       }, 800);
@@ -36,39 +36,52 @@ export default function Login() {
   };
 
   return (
-    <div className="page-container">
-      <div style={{ padding: "20px" }}>
-        <h2>Login</h2>
+    <div className="login-page">
 
-        <input
-          className="input-field"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <div className="login-container">
 
-        <input
-          className="input-field"
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* ✅ IMAGE LEFT */}
+        <div className="login-image">
+          <img src={parkingImg} alt="parking" />
+        </div>
 
-        <button className="btn-primary" onClick={handleLogin}>
-          Login
-        </button>
+        {/* ✅ LOGIN RIGHT */}
+        <div className="login-form">
 
-        <p style={{ marginTop: "10px" }}>
-          Don't have account?{" "}
-          <span
-            style={{ color: "#3b82f6", cursor: "pointer" }}
-            onClick={() => navigate("/signup")}
-          >
-            Signup
-          </span>
-        </p>
+          <h2 className="login-title">User Login</h2>
+
+          <input
+            className="login-input"
+            placeholder="Email ID"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <div className="login-actions">
+            <button className="login-btn" onClick={handleLogin}>
+              LOGIN
+            </button>
+
+            <span className="reset-text">Reset</span>
+          </div>
+
+          <p className="signup-text">
+            Don’t have account?{" "}
+            <span onClick={() => navigate("/signup")}>Signup</span>
+          </p>
+
+        </div>
+
       </div>
+
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify"; // ✅
+import { toast } from "react-toastify";
+import parkingImg from "../assets/parking.png"; // ✅ SAME IMAGE
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -11,7 +12,7 @@ const Signup = () => {
 
   const handleSignup = async () => {
     if (!name || !email || !password) {
-      toast.error("Fill all fields"); // ✅
+      toast.error("Fill all fields");
       return;
     }
 
@@ -31,10 +32,10 @@ const Signup = () => {
       const data = await res.json();
 
       if (res.ok) {
-        toast.success("Signup successful 🎉"); // ✅
+        toast.success("Signup successful 🎉");
         navigate("/login");
       } else {
-        toast.error(data.message); // ✅
+        toast.error(data.message);
       }
 
     } catch (err) {
@@ -43,46 +44,59 @@ const Signup = () => {
   };
 
   return (
-    <div className="page-container">
-      <div style={{ padding: "20px" }}>
-        <h2>Signup</h2>
+    <div className="login-page">
 
-        <input
-          placeholder="Name"
-          className="input-field"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+      <div className="login-container">
 
-        <input
-          placeholder="Email"
-          className="input-field"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        {/* 🔥 LEFT - IMAGE */}
+        <div className="login-image">
+          <img src={parkingImg} alt="parking" />
+        </div>
 
-        <input
-          placeholder="Password"
-          type="password"
-          className="input-field"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        {/* 🔥 RIGHT - FORM */}
+        <div className="login-form">
 
-        <button className="btn-primary" onClick={handleSignup}>
-          Signup
-        </button>
+          <h2 className="login-title">Create Account</h2>
 
-        <p style={{ marginTop: "10px" }}>
-          Already have account?{" "}
-          <span
-            style={{ color: "blue", cursor: "pointer" }}
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </span>
-        </p>
+          <input
+            className="login-input"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            className="login-input"
+            placeholder="Email ID"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <div className="login-actions">
+            <button className="login-btn" onClick={handleSignup}>
+              SIGNUP
+            </button>
+
+            <span className="reset-text">Reset</span>
+          </div>
+
+          <p className="signup-text">
+            Already have account?{" "}
+            <span onClick={() => navigate("/login")}>Login</span>
+          </p>
+
+        </div>
+
       </div>
+
     </div>
   );
 };
