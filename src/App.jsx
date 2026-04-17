@@ -5,11 +5,10 @@ import ParkingListScreen from './screens/ParkingListScreen';
 import BookingConfirmationScreen from './screens/BookingConfirmationScreen';
 import MyBookingsScreen from './screens/MyBookingsScreen';
 import RideBookingScreen from './screens/RideBookingScreen';
-import BottomNav from './components/BottomNav';
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Sidebar from "./components/Sidebar";
 
-// ✅ SIMPLE CHECK (no state, no bugs)
 const isLoggedIn = () => {
   return !!localStorage.getItem("token");
 };
@@ -17,36 +16,37 @@ const isLoggedIn = () => {
 function App() {
   return (
     <Router>
+
       <Routes>
 
-        {/* LOGIN */}
-        <Route 
-          path="/login" 
-          element={isLoggedIn() ? <Navigate to="/" /> : <Login />} 
-        />
+        {/* PUBLIC ROUTES */}
+        <Route path="/login" element={!isLoggedIn() ? <Login /> : <Navigate to="/" />} />
+        <Route path="/signup" element={!isLoggedIn() ? <Signup /> : <Navigate to="/" />} />
 
-        {/* SIGNUP */}
-        <Route 
-          path="/signup" 
-          element={isLoggedIn() ? <Navigate to="/" /> : <Signup />} 
+        {/* PROTECTED ROUTES WITH SIDEBAR */}
+        <Route
+          path="/*"
+          element={
+            isLoggedIn() ? (
+              <div className="layout">
+                <Sidebar />
+                <div className="main-content">
+                  <Routes>
+                    <Route path="/" element={<HomeScreen />} />
+                    <Route path="/list" element={<ParkingListScreen />} />
+                    <Route path="/confirm" element={<BookingConfirmationScreen />} />
+                    <Route path="/bookings" element={<MyBookingsScreen />} />
+                    <Route path="/ride" element={<RideBookingScreen />} />
+                  </Routes>
+                </div>
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
         />
-
-        {/* HOME */}
-        <Route 
-          path="/" 
-          element={isLoggedIn() ? <HomeScreen /> : <Navigate to="/login" />} 
-        />
-
-        {/* OTHER ROUTES */}
-        <Route path="/list" element={isLoggedIn() ? <ParkingListScreen /> : <Navigate to="/login" />} />
-        <Route path="/confirm" element={isLoggedIn() ? <BookingConfirmationScreen /> : <Navigate to="/login" />} />
-        <Route path="/bookings" element={isLoggedIn() ? <MyBookingsScreen /> : <Navigate to="/login" />} />
-        <Route path="/ride" element={isLoggedIn() ? <RideBookingScreen /> : <Navigate to="/login" />} />
 
       </Routes>
-
-      {/* NAVBAR */}
-      {isLoggedIn() && <BottomNav />}
 
     </Router>
   );

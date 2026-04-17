@@ -13,8 +13,11 @@ const Sidebar = () => {
 
   const handleClick = (item) => {
     if (item.name === "Logout") {
+      // ✅ REMOVE TOKEN
       localStorage.removeItem("token");
-      navigate("/login");
+
+      // ✅ FORCE RELOAD (IMPORTANT)
+      window.location.href = "/login";
     } else {
       navigate(item.path);
     }
