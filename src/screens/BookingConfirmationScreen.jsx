@@ -5,7 +5,7 @@ import QRCodeDisplay from '../components/QRCodeDisplay';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getToken } from "../utils/auth";
-import { toast } from "react-toastify"; // ✅
+import { toast } from "react-toastify";
 
 const BookingConfirmationScreen = () => {
   const { state } = useLocation();
@@ -69,12 +69,12 @@ const BookingConfirmationScreen = () => {
     if (loading) return;
 
     if (!name || !vehicle || !startTime || !endTime) {
-      toast.error("Fill all fields"); // ✅
+      toast.error("Fill all fields");
       return;
     }
 
     if (endTime <= startTime) {
-      toast.error("End must be after start"); // ✅
+      toast.error("End must be after start");
       return;
     }
 
@@ -101,7 +101,7 @@ const BookingConfirmationScreen = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Booking successful 🎉"); // ✅
+        toast.success("Booking successful 🎉");
 
         const shortId = data.data._id.slice(-6);
         setBookingId("PRK-" + shortId);
@@ -114,7 +114,7 @@ const BookingConfirmationScreen = () => {
         setEndTimeText("Valid till " + formatted);
         setIsBooked(true);
       } else {
-        toast.error(data.message); // ✅
+        toast.error(data.message);
       }
 
     } catch (err) {
@@ -124,41 +124,57 @@ const BookingConfirmationScreen = () => {
     }
   };
 
+  /* ================= SUCCESS SCREEN ================= */
+
   if (isBooked) {
     return (
       <div className="page-container">
         <Header title="Ticket" />
-        <div style={{ padding: "20px", textAlign: "center" }}>
-          <h2>Booking Confirmed</h2>
 
-          <QRCodeDisplay
-            id={bookingId}
-            validUntil={endTimeText}
-            isActive={true}
-          />
+        <div style={{ maxWidth: "600px", margin: "20px auto", padding: "0 16px", textAlign: "center" }}>
 
-          {pricing && (
-            <div style={{ marginTop: "10px" }}>
-              <div>Total Paid: ₹{pricing.totalPrice}</div>
-            </div>
-          )}
+          <div className="card">
 
-          <button className="btn-primary" onClick={() => navigate('/')}>
-            Done
-          </button>
+            <h2 style={{ marginBottom: "10px" }}>Booking Confirmed</h2>
+
+            <QRCodeDisplay
+              id={bookingId}
+              validUntil={endTimeText}
+              isActive={true}
+            />
+
+            {pricing && (
+              <div style={{ marginTop: "15px" }}>
+                <div>Total Paid: ₹{pricing.totalPrice}</div>
+              </div>
+            )}
+
+            <button
+              className="btn-primary"
+              style={{ marginTop: "15px" }}
+              onClick={() => navigate('/')}
+            >
+              Done
+            </button>
+
+          </div>
+
         </div>
       </div>
     );
   }
 
+  /* ================= BOOKING FORM ================= */
+
   return (
     <div className="page-container">
       <Header title="Book Slot" showBack />
 
-      <div style={{ padding: "16px" }}>
-        <h2>{parking.name}</h2>
+      <div style={{ maxWidth: "600px", margin: "20px auto", padding: "0 16px" }}>
 
-        <div className="form-card">
+        <h2 style={{ marginBottom: "10px" }}>{parking.name}</h2>
+
+        <div className="card">
 
           <div className="input-label">Name</div>
           <input
@@ -175,7 +191,7 @@ const BookingConfirmationScreen = () => {
           />
 
           {pricing && (
-            <div style={{ marginBottom: "10px" }}>
+            <div style={{ margin: "10px 0" }}>
               <div>Duration: {pricing.duration} hours</div>
               <div>Total Price: ₹{pricing.totalPrice}</div>
             </div>
@@ -190,6 +206,7 @@ const BookingConfirmationScreen = () => {
           </button>
 
         </div>
+
       </div>
     </div>
   );

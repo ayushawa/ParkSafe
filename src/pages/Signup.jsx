@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import parkingImg from "../assets/parking.png"; // ✅ SAME IMAGE
+import parkingImg from "../assets/parking.png";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -11,8 +11,16 @@ const Signup = () => {
   const navigate = useNavigate();
 
   const handleSignup = async () => {
+
+    // ✅ BASIC VALIDATION
     if (!name || !email || !password) {
       toast.error("Fill all fields");
+      return;
+    }
+
+    // ✅ EMAIL VALIDATION (YOUR REQUIREMENT)
+    if (!email.endsWith("@gmail.com")) {
+      toast.error("Invalid email !");
       return;
     }
 
@@ -40,6 +48,7 @@ const Signup = () => {
 
     } catch (err) {
       console.log(err);
+      toast.error("Something went wrong");
     }
   };
 
@@ -85,7 +94,16 @@ const Signup = () => {
               SIGNUP
             </button>
 
-            <span className="reset-text">Reset</span>
+            <span
+              className="reset-text"
+              onClick={() => {
+                setName("");
+                setEmail("");
+                setPassword("");
+              }}
+            >
+              Reset
+            </span>
           </div>
 
           <p className="signup-text">

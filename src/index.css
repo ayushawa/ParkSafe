@@ -5,8 +5,11 @@
   --subtext: #6b7280;
   --border: #e5e7eb;
 
-  --blue: #2563eb;
-  --blue2: #3b82f6;
+  /* 🔥 YOUR COLOR SYSTEM */
+  --teal: #14b8a6;
+  --teal2: #0d9488;
+  --dark: #0f172a;
+
   --red: #ef4444;
 }
 
@@ -45,7 +48,7 @@ body {
 
 .sidebar {
   width: 220px;
-  background: #111827;
+  background: var(--dark);
   color: white;
   padding: 20px;
 }
@@ -65,11 +68,11 @@ body {
 }
 
 .sidebar-item:hover {
-  background: #1f2937;
+  background: #1e293b;
 }
 
 .sidebar-item.active {
-  background: var(--blue);
+  background: var(--teal);
 }
 
 /* ================= PAGE ================= */
@@ -108,6 +111,15 @@ body {
   box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
+/* FORM CARD */
+.form-card {
+  background: var(--surface);
+  padding: 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
 /* ================= INPUT ================= */
 
 .input-field {
@@ -117,11 +129,13 @@ body {
   border: 1px solid var(--border);
   background: #fff;
   font-size: 14px;
+  margin-bottom: 12px;
 }
 
 .input-field:focus {
   outline: none;
-  border-color: var(--blue);
+  border-color: var(--teal);
+  box-shadow: 0 0 0 2px rgba(20,184,166,0.15);
 }
 
 /* ================= BUTTON ================= */
@@ -131,30 +145,88 @@ body {
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--blue), var(--blue2));
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
   color: white;
   font-weight: 600;
   cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
 }
 
 /* ================= BOOKING CARD ================= */
 
 .booking-card {
-  background: white;
+  background: var(--surface);
   border-radius: 16px;
   padding: 16px;
   border: 1px solid var(--border);
   margin-bottom: 16px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
 }
 
+/* 🔥 FIXED CANCEL BUTTON (TEAL) */
 .btn-cancel {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
-  background: var(--red);
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
   color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-cancel:hover {
+  transform: translateY(-1px);
+}
+
+/* ================= PARKING CARD ================= */
+
+.parking-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.parking-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.parking-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.parking-sub {
+  font-size: 13px;
+  color: var(--subtext);
+  margin-top: 4px;
+}
+
+.parking-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.parking-available {
+  color: var(--teal);
+  font-weight: 600;
+}
+
+.parking-price {
+  font-weight: 600;
 }
 
 /* ================= LOGIN PAGE ================= */
@@ -167,7 +239,6 @@ body {
   background: linear-gradient(135deg, #eaf1f8, #f9fbff);
 }
 
-/* 🔥 ONE SINGLE CARD */
 .login-container {
   display: flex;
   width: 900px;
@@ -178,13 +249,11 @@ body {
   box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-/* 🔥 IMAGE LEFT */
 .login-image {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: transparent; /* ❌ NO SPLIT */
 }
 
 .login-image img {
@@ -193,24 +262,20 @@ body {
   object-fit: contain;
 }
 
-/* 🔥 LOGIN RIGHT */
 .login-form {
   flex: 1;
   padding: 50px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: transparent; /* ❌ SAME CARD */
 }
 
-/* TITLE */
 .login-title {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 30px;
 }
 
-/* INPUT */
 .login-input {
   width: 100%;
   padding: 12px;
@@ -221,17 +286,15 @@ body {
   outline: none;
 }
 
-/* BUTTON */
 .login-btn {
   padding: 10px 20px;
-  background: #111;
+  background: var(--dark);
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
 }
 
-/* ACTIONS */
 .login-actions {
   display: flex;
   justify-content: space-between;
@@ -243,19 +306,22 @@ body {
   color: #666;
 }
 
-/* SIGNUP */
 .signup-text {
   margin-top: 15px;
   font-size: 13px;
 }
 
 .signup-text span {
-  color: var(--blue);
+  color: var(--teal);
   cursor: pointer;
 }
 
-/* ================= RESPONSIVE ================= */
+/* HEADER FIX */
+header, .header {
+  background: transparent !important;
+}
 
+/* RESPONSIVE */
 @media (max-width: 900px) {
   .login-container {
     flex-direction: column;
@@ -268,8 +334,7 @@ body {
   }
 }
 
-/* ================= DATEPICKER ================= */
-
+/* DATEPICKER */
 .react-datepicker-popper {
   z-index: 9999 !important;
 }

@@ -14,17 +14,12 @@ const MyBookingsScreen = () => {
       const token = getToken();
 
       const res = await fetch("http://localhost:5000/bookings", {
-        headers: {
-          authorization: token
-        }
+        headers: { authorization: token }
       });
 
       const data = await res.json();
 
-      if (!Array.isArray(data)) {
-        console.log("Error:", data);
-        return;
-      }
+      if (!Array.isArray(data)) return;
 
       const now = new Date();
 
@@ -37,7 +32,7 @@ const MyBookingsScreen = () => {
           location: b.location,
           name: b.name,
           vehicle: b.vehicle,
-          price: b.totalPrice || 0, // ✅ PRICE ADDED
+          price: b.totalPrice || 0,
           date: start.toDateString(),
           time: `${start.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} - ${end.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`,
           isActive: start <= now && end >= now,
@@ -58,9 +53,7 @@ const MyBookingsScreen = () => {
 
     await fetch(`http://localhost:5000/cancel/${id}`, {
       method: "DELETE",
-      headers: {
-        authorization: token
-      }
+      headers: { authorization: token }
     });
 
     fetchBookings();
@@ -74,49 +67,139 @@ const MyBookingsScreen = () => {
     <div className="page-container">
       <Header title="My Bookings" />
 
-      <div style={{ padding: "16px" }}>
+      <div style={{ maxWidth: "700px", margin: "20px auto", padding: "0 16px" }}>
 
+        {/* ACTIVE */}
         {activeNow && (
           <>
-            <h3>Active Now</h3>
-            <div className="booking-card">
-              <div>{activeNow.location}</div>
-              <div>{activeNow.name} | {activeNow.vehicle}</div>
-              <div>{activeNow.date} • {activeNow.time}</div>
-              <div>₹{activeNow.price}</div> {/* ✅ PRICE */}
-              <button className="btn-cancel" onClick={() => handleCancel(activeNow.id)}>
-                Cancel
+            <h3 className="text-h3">Active Now</h3>
+
+            <div className="card" style={{ marginTop: "10px" }}>
+              
+              {/* TOP */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div style={{ fontWeight: "600" }}>{activeNow.location}</div>
+                <div style={{
+                  background: "rgba(20,184,166,0.15)",
+                  color: "var(--teal)",
+                  padding: "4px 10px",
+                  borderRadius: "8px",
+                  fontSize: "12px"
+                }}>
+                  ACTIVE
+                </div>
+              </div>
+
+              {/* MIDDLE */}
+              <div style={{ marginTop: "8px", color: "var(--subtext)" }}>
+                {activeNow.name} | {activeNow.vehicle}
+              </div>
+
+              <div style={{ marginTop: "4px" }}>
+                {activeNow.date} • {activeNow.time}
+              </div>
+
+              {/* PRICE */}
+              <div style={{ marginTop: "8px", fontWeight: "600" }}>
+                ₹{activeNow.price}
+              </div>
+
+              {/* BUTTON */}
+              <button
+                className="btn-cancel"
+                onClick={() => handleCancel(activeNow.id)}
+              >
+                Cancel Booking
               </button>
             </div>
           </>
         )}
 
+        {/* UPCOMING */}
         {upcoming.length > 0 && (
           <>
-            <h3>Upcoming</h3>
+            <h3 className="text-h3" style={{ marginTop: "24px" }}>Upcoming</h3>
+
             {upcoming.map(b => (
-              <div key={b.id} className="booking-card">
-                <div>{b.location}</div>
-                <div>{b.name} | {b.vehicle}</div>
-                <div>{b.date} • {b.time}</div>
-                <div>₹{b.price}</div> {/* ✅ PRICE */}
-                <button className="btn-cancel" onClick={() => handleCancel(b.id)}>
-                  Cancel
+              <div key={b.id} className="card" style={{ marginTop: "10px" }}>
+
+                {/* TOP */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: "600" }}>{b.location}</div>
+                  <div style={{
+                    background: "rgba(20,184,166,0.15)",
+                    color: "var(--teal)",
+                    padding: "4px 10px",
+                    borderRadius: "8px",
+                    fontSize: "12px"
+                  }}>
+                    UPCOMING
+                  </div>
+                </div>
+
+                {/* MIDDLE */}
+                <div style={{ marginTop: "8px", color: "var(--subtext)" }}>
+                  {b.name} | {b.vehicle}
+                </div>
+
+                <div style={{ marginTop: "4px" }}>
+                  {b.date} • {b.time}
+                </div>
+
+                {/* PRICE */}
+                <div style={{ marginTop: "8px", fontWeight: "600" }}>
+                  ₹{b.price}
+                </div>
+
+                {/* BUTTON */}
+                <button
+                  className="btn-cancel"
+                  onClick={() => handleCancel(b.id)}
+                >
+                  Cancel Booking
                 </button>
+
               </div>
             ))}
           </>
         )}
 
+        {/* PAST */}
         {past.length > 0 && (
           <>
-            <h3>Past</h3>
+            <h3 className="text-h3" style={{ marginTop: "24px" }}>Past</h3>
+
             {past.map(b => (
-              <div key={b.id} className="booking-card">
-                <div>{b.location}</div>
-                <div>{b.name} | {b.vehicle}</div>
-                <div>{b.date} • {b.time}</div>
-                <div>₹{b.price}</div> {/* ✅ PRICE */}
+              <div key={b.id} className="card" style={{ marginTop: "10px", opacity: 0.8 }}>
+
+                {/* TOP */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div style={{ fontWeight: "600" }}>{b.location}</div>
+                  <div style={{
+                    background: "#e5e7eb",
+                    color: "#6b7280",
+                    padding: "4px 10px",
+                    borderRadius: "8px",
+                    fontSize: "12px"
+                  }}>
+                    COMPLETED
+                  </div>
+                </div>
+
+                {/* MIDDLE */}
+                <div style={{ marginTop: "8px", color: "var(--subtext)" }}>
+                  {b.name} | {b.vehicle}
+                </div>
+
+                <div style={{ marginTop: "4px" }}>
+                  {b.date} • {b.time}
+                </div>
+
+                {/* PRICE */}
+                <div style={{ marginTop: "8px", fontWeight: "600" }}>
+                  ₹{b.price}
+                </div>
+
               </div>
             ))}
           </>

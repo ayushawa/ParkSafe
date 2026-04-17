@@ -53,50 +53,58 @@ const ParkingListScreen = () => {
     <div className="page-container">
       <Header title="Nearby Parking" showBack={true} />
 
-      <div className="p-4 flex-col gap-4">
+      <div style={{ maxWidth: "750px", margin: "20px auto", padding: "0 16px" }}>
 
-        <h3 className="text-h3">Select Time</h3>
+        <div className="card">
 
-        <DatePicker
-          selected={startTime}
-          onChange={(date) => {
-            setStartTime(date);
-            if (endTime && date < endTime) {
-              fetchParking(date, endTime);
-            }
-          }}
-          showTimeSelect
-          minDate={new Date()}
-          dateFormat="Pp"
-          placeholderText="Start time"
-          className="datepicker-input"
-        />
+          <h3 className="text-h3">Select Time</h3>
 
-        <DatePicker
-          selected={endTime}
-          onChange={(date) => {
-            setEndTime(date);
-            if (startTime && startTime < date) {
-              fetchParking(startTime, date);
-            }
-          }}
-          showTimeSelect
-          minDate={new Date()}
-          dateFormat="Pp"
-          placeholderText="End time"
-          className="datepicker-input"
-        />
+          <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
 
-        {/* 🔥 SHOW SELECTED TIME */}
-        {startTime && endTime && (
-          <div style={{ marginTop: "10px", color: "#aaa" }}>
-            Selected: {startTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
-            {" → "}
-            {endTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}
+            <DatePicker
+              selected={startTime}
+              onChange={(date) => {
+                setStartTime(date);
+                if (endTime && date < endTime) {
+                  fetchParking(date, endTime);
+                }
+              }}
+              showTimeSelect
+              minDate={new Date()}
+              dateFormat="Pp"
+              placeholderText="Start time"
+              className="datepicker-input"
+            />
+
+            <DatePicker
+              selected={endTime}
+              onChange={(date) => {
+                setEndTime(date);
+                if (startTime && startTime < date) {
+                  fetchParking(startTime, date);
+                }
+              }}
+              showTimeSelect
+              minDate={new Date()}
+              dateFormat="Pp"
+              placeholderText="End time"
+              className="datepicker-input"
+            />
+
           </div>
-        )}
 
-        <h3 className="text-body-strong">
+          {startTime && endTime && (
+            <div style={{ marginTop: "10px", color: "#6b7280" }}>
+              Selected:{" "}
+              {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {" → "}
+              {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          )}
+
+        </div>
+
+        <h3 style={{ marginTop: "20px" }}>
           Found {parkings.length} locations
         </h3>
 
@@ -104,7 +112,7 @@ const ParkingListScreen = () => {
           const isFull = parking.available === 0;
 
           return (
-            <div key={parking.id} className="mb-4">
+            <div key={parking.id} style={{ marginTop: "12px" }}>
               <ParkingCard
                 {...parking}
                 isFull={isFull}
