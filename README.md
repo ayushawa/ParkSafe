@@ -130,7 +130,7 @@ The booking process follows the steps below:
 
 ---
 
-## Future Enhancements
+## Future Scope
 
 - Admin Dashboard
 - Online Payment Integration
